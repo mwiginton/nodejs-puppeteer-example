@@ -1,0 +1,22 @@
+{
+  "name": "nodejs-puppeteer-example",
+  "version": "1.0.0",
+  "description": "A sample project demonstrating how to use the Puppeteer Framework in NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwiginton/nodejs-puppeteer-example.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mwiginton/nodejs-puppeteer-example/issues"
+  },
+  "homepage": "https://github.com/mwiginton/nodejs-puppeteer-example#readme",
+  "dependencies": {
+    "puppeteer": "^19.2.2"
+  }
+}
