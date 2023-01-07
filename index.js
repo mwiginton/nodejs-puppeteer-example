@@ -53,8 +53,5 @@ const puppeteer = require('puppeteer');
       });
     }
   }
-
-  console.log('TRANSFORMED LAPTOPS')
-  console.log(transformedLaptops)
   // await browser.close();
 })();
