@@ -48,7 +48,7 @@ const puppeteer = require('puppeteer');
     if (title !== null) {
       transformedLaptops.push({
         title: title,
-        price: `${priceDollar}.${priceCent}`,
+        price: `${priceDollar}${priceCent}`,
         imageUrl: image
       });
     }
