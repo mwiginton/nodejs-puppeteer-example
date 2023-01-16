@@ -10,16 +10,16 @@ const puppeteer = require('puppeteer');
 
   await page.goto('https://www.amazon.com/s?k=gaming+laptop');
 
-  const laptops = await page.$$('div.s-main-slot.s-result-list.s-search-results.sg-row > .s-result-item');
-
-  let title = null;
-  let priceDollar = null;
-  let priceCent = null
-  let image = null;
+  const laptops = await page.$$('.s-result-item');
 
   let transformedLaptops = [];
 
   for (const laptop of laptops) {
+    let title = null;
+    let priceDollar = null;
+    let priceCent = null
+    let image = null;
+
     // for each element attempt to retrieve the title if there is one (some elements in here may not have a title)
     try {
       title = await page.evaluate(el => el.querySelector('h2 > a > span').textContent, laptop);
@@ -39,8 +39,6 @@ const puppeteer = require('puppeteer');
     // for each element try to retrieve the image url
     try {
       image = await page.evaluate(el => el.querySelector('.s-image').getAttribute('src'), laptop);
-      console.log('image url');
-      console.log(image);
     } catch(err) {
       console.log('no image found for element');
     }
