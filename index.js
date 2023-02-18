@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
+const fs = require("fs");
+const fastcsv = require('fast-csv');
 
-// TODO FIGURE OUT WHY ONLY SEVEN RESULTS ARE GETTING FETCHED ON PAGE 2 ONWARD
-// LOG EACH RESULT AND SEE WHICH ONES ARE GETTING EXCLUDED, SEE WHY
 (async () => {
   const browser = await puppeteer.launch({
       headless: false,         // indicates that we want the browser visible
@@ -11,7 +11,6 @@ const puppeteer = require('puppeteer');
   const page = await browser.newPage();
 
   await page.goto('https://www.amazon.com/s?k=gaming+laptop', {waitUntil: "load"});
-  // await page.goto('https://www.amazon.com/s?k=gaming+laptop&page=2&crid=XKETDCB7JSP5&qid=1674922977&sprefix=gaming+laptop%2Caps%2C148&ref=sr_pg_2', {waitUntil: "load"});
 
   let nextButtonVisible = await page.$('a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator') != null;
   let transformedLaptops = [];
@@ -22,9 +21,7 @@ const puppeteer = require('puppeteer');
     // wait until the search results have fully loaded before trying to interact with them
     await page.waitForSelector('[data-cel-widget="search_result_0"]', {visible: true});
     await page.waitForSelector('.s-pagination-item.s-pagination-next', {visible: true});
-    console.log('selector found')
     const laptops = await page.$$('.s-result-item');
-    console.log(`laptops length ${laptops.length}`)
     console.log(`CURRENT PAGE: ${pageCounter}`)
 
     for (const laptop of laptops) {
@@ -32,6 +29,7 @@ const puppeteer = require('puppeteer');
       let priceDollar = null;
       let priceCent = null
       let image = null;
+      let url = null;
   
       // for each element attempt to retrieve the title if there is one (some elements in here may not have a title)
       try {
@@ -56,20 +54,23 @@ const puppeteer = require('puppeteer');
         //console.log('no image found for element');
       }
 
-      
+      // for each element try to receive page URL
+      try {
+        url = await page.evaluate(el => el.querySelector('.a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal').href, laptop);
+      } catch (err) {
+        console.log('No URL found for this element');
+      }
+     
       // create our cleaned array of JSON objects with just the pertinent data
       if (title !== null) {
         transformedLaptops.push({
           title: title,
           price: `${priceDollar}${priceCent}`,
-          imageUrl: image
+          imageUrl: image,
+          pageUrl: url
         });
       }
     }
-
-    // console.log('PAGE COLLECTION')
-    // console.log(transformedLaptops)
-    // console.log();
     pageCounter++;
 
     // once we finish processing all the results on the current page, let's try to navigate to the next page if possible
@@ -78,12 +79,19 @@ const puppeteer = require('puppeteer');
     if (await page.$('a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator') !== null) {
       // if next button is clickable, click to proceed to the next page
       await page.click('a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator');
-      // await page.waitForNavigation({ waitUntil: 'load' });
     } else {
       // if next button is not clickable, set nextButtonVisible to false to break out of our while loop
       nextButtonVisible = false;
     }
   }
+
+  // TO-DO: navigate to the details page of each laptop to fetch specific details about each laptop
+  // for (laptop of transformedLaptops) {
+
+  // }
+
+  // TO-DO: write final data to csv report
+
   console.log(`Final List Count: ${transformedLaptops.length}`)
   console.log('SCRIPT COMPLETE');
   // await browser.close();
